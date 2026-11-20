@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cancionero</title>
+<meta name="theme-color" content="#163a31">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cancionero">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top" id="top">
+  <div class="row">
+    <h1 class="brand">Cancionero</h1>
+    <button class="btn" id="nowBtn" title="Abrir lo que suena ahora en Spotify">♪ Suena</button>
+    <button class="btn" id="setBtn" aria-label="Ajustes">⚙</button>
+    <button class="btn pri" id="addBtn">+ Nueva</button>
+  </div>
+  <div class="row hr">
+    <input class="search" id="q" type="search" placeholder="Buscar canción, artista o acorde…" aria-label="Buscar">
+  </div>
+  <div class="chips hr" id="chips"></div>
+</header>
+<div class="wrap">
+  <section id="list" aria-label="Canciones"></section>
+  <section id="song" aria-live="polite"></section>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<dialog id="dlg"><form class="dlg" id="form" method="dialog">
+  <h3 id="dlgT">Agregar canción</h3>
+  <p class="hint">Pega la hoja de acordes (con o sin letra) tal como la copias desde LaCuerda, Cifra Club o Ultimate Guitar. También acepta formato ChordPro ([C]palabra). Las líneas de acordes se detectan solas y se pueden transponer.</p>
+  <div class="g2">
+    <label class="f">Título<input id="fT" required></label>
+    <label class="f">Artista<input id="fA"></label>
+    <label class="f">Género<select id="fG"></select></label>
+    <label class="f">Tono<input id="fK" placeholder="ej. Em"></label>
+  </div>
+  <label class="f">Acordes y letra<textarea id="fC" spellcheck="false" placeholder="[Intro]&#10;Em   G   D   C&#10;&#10;[Verso]&#10;Em        G&#10;(tu letra aquí)"></textarea></label>
+  <div class="row"><button class="btn pri" value="ok">Guardar</button><button class="btn" value="cancel" formnovalidate>Cancelar</button><span class="msg" id="fMsg"></span></div>
+</form></dialog>
+
+<dialog id="setDlg"><div class="dlg">
+  <h3>Ajustes</h3>
+  <section class="box">
+    <h4>Spotify</h4>
+    <p class="hint">Necesitas Spotify Premium y una app propia en <b>developer.spotify.com/dashboard</b> (la guía README explica cómo, en 3 minutos).</p>
+    <label class="f">Client ID<input id="cid" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="pega aquí el Client ID de tu app de Spotify"></label>
+    <label class="f">Redirect URI (cópiala tal cual en el panel de Spotify)<input id="ruri" readonly></label>
+    <div class="row"><button class="btn sm" id="copyRuri">Copiar Redirect URI</button><button class="btn pri sm" id="spLogin">Conectar Spotify</button><button class="btn sm" id="spOut">Desconectar</button></div>
+    <p class="msg" id="spStat"></p>
+    <details><summary>iPhone/iPad: conectar con la app instalada</summary>
+      <p class="hint">En iOS el ícono instalado y Safari no comparten datos, y Spotify devuelve el inicio de sesión a Safari. Solución: conecta Spotify desde Safari (abriendo la dirección de la app, sin usar el ícono), toca “Copiar código de enlace”, abre la app instalada, pega el código aquí y toca “Usar código”.</p>
+      <div class="row"><button class="btn sm" id="copyCode">Copiar código de enlace</button></div>
+      <label class="f">Pegar código<textarea id="codeIn" rows="3" spellcheck="false"></textarea></label>
+      <div class="row"><button class="btn sm" id="useCode">Usar código</button></div>
+    </details>
+  </section>
+  <section class="box">
+    <h4>Respaldo y hojas</h4>
+    <p class="hint">Tus hojas se guardan solo en este dispositivo. Para pasarlas al teléfono o tablet, exporta un respaldo y envíatelo por WhatsApp.</p>
+    <div class="row"><button class="btn sm" id="expBk">Compartir respaldo</button><button class="btn sm" id="impBk">Importar respaldo</button><button class="btn sm" id="impTxt">Importar hojas (.txt, .pro, .cho)</button></div>
+    <input type="file" id="fBk" accept=".json,application/json" hidden>
+    <input type="file" id="fTxt" accept=".txt,.pro,.cho,.crd,.chordpro,text/plain" multiple hidden>
+  </section>
+  <section class="box">
+    <h4>Instalar como app</h4>
+    <p class="hint"><b>iPhone/iPad:</b> Safari → Compartir → “Agregar a inicio”. <b>Android:</b> Chrome → menú ⋮ → “Instalar app”.</p>
+    <button class="btn sm" id="instBtn" hidden>Instalar ahora</button>
+  </section>
+  <div class="row"><button class="btn pri" id="setClose">Cerrar</button><span class="msg">Versión 1.0</span></div>
+</div></dialog>
+
+<dialog id="spDlg"><div class="dlg">
+  <h3>Elegir versión en Spotify</h3>
+  <p class="hint">Si el tema suena distinto al de tus acordes (en vivo, remasterizado), elige otra versión. El avance se ajusta a la duración de la versión elegida.</p>
+  <div id="spList"></div>
+  <div class="row"><button class="btn" id="spClose">Cerrar</button></div>
+</div></dialog>
+
+<script src="songs.js"></script>
+<script src="spotify.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
